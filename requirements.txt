@@ -1,0 +1,7 @@
+jupyterlab
+matplotlib
+neurolib
+numpy
+pandas
+seaborn
+xarray
