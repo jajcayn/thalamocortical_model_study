@@ -1,3 +1,8 @@
+"""
+Basic plotting helpers.
+"""
+
+
 from functools import partial
 
 import matplotlib.pyplot as plt
