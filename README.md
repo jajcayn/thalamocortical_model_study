@@ -1,6 +1,6 @@
 # Thalamocortical motif rate model
 
-*Accompanying code for the "Biophysically realistic mass model of thalamocortical motif reproduces slow oscillation and sleep spindle interactions" study.*
+*Accompanying code for the Jajcay et al. "Biophysically realistic mass model of thalamocortical motif reproduces slow oscillation and sleep spindle interactions", [journal here]*
 
 ## Abstract
 *WIP*
@@ -21,7 +21,7 @@ Easy to use, only docker required. Runs `jupyter` inside a docker container.
 ```bash
 docker run -p XXXX:XXXX ...
 ```
-and navigate to https://localhost:XXXX
+and navigate to localhost:XXXX
 
 ### Binder
 Easiest to use, no setup required, slowest.
