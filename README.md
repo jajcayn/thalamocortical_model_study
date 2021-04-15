@@ -1,2 +1,29 @@
-# thalamocortical_model_study
-Analysis code for thalamocortical paper
+# Thalamocortical motif rate model
+
+*Accompanying code for the "Biophysically realistic mass model of thalamocortical motif reproduces slow oscillation and sleep spindle interactions" study.*
+
+## Abstract
+*WIP*
+
+## How to run
+
+### Locally
+Fastest, complete control, requires python et al. already set up.
+```bash
+git clone ...
+cd ...
+pip install --upgrade -r requirements.txt
+jupyter lab
+```
+
+### Docker
+Easy to use, only docker required. Runs `jupyter` inside a docker container.
+```bash
+docker run -p XXXX:XXXX ...
+```
+and navigate to https://localhost:XXXX
+
+### Binder
+Easiest to use, no setup required, slowest.
+
+Just click here >>

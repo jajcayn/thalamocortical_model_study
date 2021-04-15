@@ -1,9 +1,13 @@
+black
+flake8
+isort
 jupyterlab
 matplotlib
 mne
-neurolib
+git+https://github.com/neurolib-dev/neurolib.git
 numpy
 pandas
+pathos
 seaborn
 tqdm
 xarray

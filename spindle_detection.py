@@ -4,6 +4,7 @@ Spindle detection helper functions.
 
 
 import logging
+from itertools import tee
 
 import numpy as np
 import pandas as pd
@@ -131,3 +132,35 @@ def spindles_detect_thalamus(
     return yasa.spindles_detect(
         scale_to_voltage(tcr_ts).values, sf=sf, **kwargs
     )
+
+
+def so_phase_while_spindle(so_phase, spindle_amp, down_state_centers, **kwargs):
+    """
+    Compute SO phase on spindle maximum between down states.
+
+    :param so_phase: phase of the SO
+    :type so_phase: np.ndarray
+    :param spindle_amp: spindle amplitude
+    :type spindle_amp: np.ndarray
+    :param down_state_centers: indices of down state centers
+    :type down_state_centers: np.ndarray
+    :return: SO phases on maximum spindle amplitude
+    :rtype: np.ndarray
+    """
+    SOphases = []
+
+    def pairwise(iterable):
+        a, b = tee(iterable)
+        next(b, None)
+        return zip(a, b)
+
+    spindle_amp_threshold = kwargs.get("sp_amp_thresh", 5.0)
+    for start_idx, end_idx in pairwise(down_state_centers):
+        # get amplitude for each down state
+        sp_amp_down_state = spindle_amp[start_idx:end_idx]
+        # find max sigma amp
+        idx_max = sp_amp_down_state.argmax()
+        if sp_amp_down_state[idx_max] >= spindle_amp_threshold:
+            SOphases.append(so_phase[start_idx + idx_max])
+
+    return np.array(SOphases)
