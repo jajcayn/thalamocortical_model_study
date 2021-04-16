@@ -4,6 +4,7 @@ isort
 jupyterlab
 matplotlib
 mne
+netcdf4
 git+https://github.com/neurolib-dev/neurolib.git
 numpy
 pandas
