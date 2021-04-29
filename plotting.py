@@ -11,7 +11,7 @@ import pandas as pd
 from mne.time_frequency.multitaper import psd_array_multitaper
 from mne.time_frequency.psd import psd_array_welch
 from mne.viz.utils import _convert_psds
-from scipy.stats import circmean, circstd
+from scipy.stats import circmean, circstd, sem
 
 from statistical_testing import get_p_values
 
@@ -114,6 +114,7 @@ def plot_average_events_ts(
     events_idx,
     time_before,
     time_after,
+    plus_minus_stats="sem",
     color="C0",
     title="",
     ylabel="",
@@ -134,6 +135,12 @@ def plot_average_events_ts(
     :type time_before: float
     :param time_after: time after center of event, in seconds
     :type time_after: float
+    :param plus_minus_stats: what statistics to use to shade the region around
+        mean, available are:
+        "sem" - standard error of the mean
+        "quantile" - 97.5 and 2.5 quantile in the data
+        "std" - standard deviation
+    :type plus_minus_stats: str
     :param color: color of the `ts`
     :type color: str
     :param title: title for the plot
@@ -147,23 +154,44 @@ def plot_average_events_ts(
     :param ax: axis to plot to; if None, will create
     :type ax: `matplotlib.axes._axes.Axes`|None
     """
+
+    def stats_up(ts, stat):
+        if stat == "sem":
+            return np.mean(ts, axis=0) + sem(ts, ddof=1, axis=0)
+        elif stat == "std":
+            return np.mean(ts, axis=0) + np.std(ts, ddof=1, axis=0)
+        elif stat == "quantile":
+            return np.quantile(ts, q=0.975, axis=0)
+        else:
+            raise ValueError(f"Unknown stat: {stat}")
+
+    def stats_down(ts, stat):
+        if stat == "sem":
+            return np.mean(ts, axis=0) - sem(ts, ddof=1, axis=0)
+        elif stat == "std":
+            return np.mean(ts, axis=0) - np.std(ts, ddof=1, axis=0)
+        elif stat == "quantile":
+            return np.quantile(ts, q=0.025, axis=0)
+        else:
+            raise ValueError(f"Unknown stat: {stat}")
+
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(111)
-    sf = float(1.0 / (ts.time[1] - ts.time[0]))
+    sf = np.around(float(1.0 / (ts.time[1] - ts.time[0])))
     time_before = int(time_before * sf)
     time_after = int(time_after * sf)
     time = np.arange(-time_before, time_after + 1, dtype="int") / sf
     mean_ts = np.mean([ts.values[idxi] for idxi in events_idx], axis=0)
-    ci97_ts = np.quantile(
-        [ts.values[idxi] for idxi in events_idx], q=0.975, axis=0
+    stat_up = stats_up(
+        [ts.values[idxi] for idxi in events_idx], stat=plus_minus_stats
     )
-    ci2_ts = np.quantile(
-        [ts.values[idxi] for idxi in events_idx], q=0.025, axis=0
+    stat_down = stats_down(
+        [ts.values[idxi] for idxi in events_idx], stat=plus_minus_stats
     )
     assert time.shape[0] == mean_ts.shape[0], (time.shape, mean_ts.shape)
     ax.plot(time, mean_ts, color=color)
-    ax.fill_between(time, ci97_ts, ci2_ts, color=color, alpha=0.3)
+    ax.fill_between(time, stat_up, stat_down, color=color, alpha=0.3)
     ax.set_ylim([0.0, ts.max()])
     ax.grid()
     if second_ts is not None:
@@ -171,18 +199,20 @@ def plot_average_events_ts(
         mean_second_ts = np.mean(
             [second_ts.values[idxi] for idxi in events_idx], axis=0
         )
-        ci97_second_ts = np.quantile(
-            [second_ts.values[idxi] for idxi in events_idx], q=0.975, axis=0
+        stat_up_second = stats_up(
+            [second_ts.values[idxi] for idxi in events_idx],
+            stat=plus_minus_stats,
         )
-        ci2_second_ts = np.quantile(
-            [second_ts.values[idxi] for idxi in events_idx], q=0.025, axis=0
+        stat_down_second = stats_down(
+            [second_ts.values[idxi] for idxi in events_idx],
+            stat=plus_minus_stats,
         )
         ax2 = ax.twinx()
         ax2.plot(time, mean_second_ts, color=color_second_ts)
         ax2.fill_between(
             time,
-            ci97_second_ts,
-            ci2_second_ts,
+            stat_up_second,
+            stat_down_second,
             color=color_second_ts,
             alpha=0.3,
         )

@@ -15,7 +15,13 @@ from scipy.spatial import cKDTree
 from scipy.special import digamma
 from scipy.stats import entropy
 
-from statistical_testing import get_single_FT_surrogate
+from statistical_testing import (
+    get_single_AAFT_surrogate,
+    get_single_FT_surrogate,
+    get_single_IAAFT_surrogate,
+    get_single_shuffle_surrogate,
+    get_single_time_shift_surrogate,
+)
 
 LEAF_SIZE = 15
 
@@ -51,7 +57,6 @@ class SurrogateSignal(Signal):
             - FT
             - AAFT
             - IAAFT
-            - MF
         :type surrogate_type: str
         :param univariate: if True, each column will be seeded independetly
             (not preserving any kind of relationship between columns); if False
@@ -69,10 +74,16 @@ class SurrogateSignal(Signal):
         )
 
         def get_surr(ts, surr_type, seed, **kwargs):
-            if surr_type == "FT":
+            if surr_type == "shift":
+                return get_single_time_shift_surrogate(ts, seed=seed)
+            elif surr_type == "shuffle":
+                return get_single_shuffle_surrogate(ts, seed=seed, **kwargs)
+            elif surr_type == "FT":
                 return get_single_FT_surrogate(ts, seed=seed)
-            else:
-                raise ValueError(f"Unknown surrogate type {surr_type}")
+            elif surr_type == "AAFT":
+                return get_single_AAFT_surrogate(ts, seed=seed)
+            elif surr_type == "IAAFT":
+                return get_single_IAAFT_surrogate(ts, seed=seed, **kwargs)
 
         surrogates = xr.apply_ufunc(
             lambda x: get_surr(x, surrogate_type, seed, **kwargs),
