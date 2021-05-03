@@ -54,11 +54,13 @@ def get_single_time_shift_surrogate(ts, seed=None):
     return np.roll(ts, roll, axis=0)
 
 
-def get_single_shuffle_surrogate(ts, cut_points=None, seed=None):
+def get_single_shuffle_surrogate(ts, cut_points=None, repeats=100, seed=None):
     """
     Return single 1D shuffle surrogate. Timeseries is cut into `cut_points`
     pieces at random and then shuffled. If `cut_points` is None, will cut each
-    point, hence whole timeseries is shuffled.
+    point, hence whole timeseries is shuffled. Typical usage:
+    - just 1 cut_point, 200 - 1000 repeats
+    - cut at several points, fewer repeats
 
     :param ts: timeseries to transform as [time x N]
     :type ts: np.ndarray
@@ -66,6 +68,8 @@ def get_single_shuffle_surrogate(ts, cut_points=None, seed=None):
         into n+1 partitions with n cut_points; if None, each point is its own
         partition, i.e. classical shuffle surrogate
     :type cut_points: int|None
+    :param repeats: how many times is the shuffling procedure repeated
+    :type repeats: int
     :param seed: seed for random number generator
     :type seed: int|None
     :return: 1D shuffle surrogate of timeseries
@@ -77,24 +81,32 @@ def get_single_shuffle_surrogate(ts, cut_points=None, seed=None):
     assert (
         cut_points <= ts.shape[0]
     ), "Cannot have more cut points than length of the timeseries"
-    # generate random partition points without replacement
-    partion_points = np.sort(
-        np.random.choice(ts.shape[0], cut_points, replace=False)
-    )
 
     def split_permute_concat(x, split_points):
         """
         Helper that splits, permutes and concats the timeseries.
         """
-        return np.concatenate(
-            np.random.permutation(np.split(x, split_points, axis=0))
+        splits = np.split(x, split_points, axis=0)
+        np.random.shuffle(splits)
+        return np.concatenate(splits, axis=0)
+
+    previous_permutation = ts.copy()
+    for _ in range(repeats):
+        # generate random partition points without replacement
+        partion_points = np.sort(
+            np.random.choice(ts.shape[0], cut_points, replace=False)
         )
 
-    current_permutation = split_permute_concat(ts, partion_points)
-    # assert we actually permute the timeseries, useful when using only one
-    # cutting point, i.e. two partitions so they are forced to swap
-    while np.all(current_permutation == ts):
-        current_permutation = split_permute_concat(ts, partion_points)
+        current_permutation = split_permute_concat(
+            previous_permutation, partion_points
+        )
+        # assert we actually permute the timeseries, useful when using only one
+        # cutting point, i.e. two partitions so they are forced to swap
+        while np.all(current_permutation == previous_permutation):
+            current_permutation = split_permute_concat(
+                previous_permutation, partion_points
+            )
+        previous_permutation = current_permutation.copy()
     return current_permutation
 
 
@@ -139,7 +151,7 @@ def get_single_AAFT_surrogate(ts, seed=None):
     return rescaled_data.squeeze()
 
 
-def get_single_IAAFT_surrogate(ts, n_iterations=1000, seed=None):
+def get_single_IAAFT_surrogate(ts, n_iterations=10, seed=None):
     """
     Returns single 1D iteratively refined amplitude-adjusted Fourier transform
     surrogate. A set of AAFT surrogates is iteratively refined to produce a
