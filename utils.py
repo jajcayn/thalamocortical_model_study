@@ -5,9 +5,9 @@ Various helper functions.
 from itertools import tee
 
 import numpy as np
+import scipy.interpolate as si
 import xarray as xr
 from neurolib.utils.signal import Signal
-from scipy.interpolate import interp1d
 
 
 def dummy_detect_down_states(timeseries, threshold, min_down_length=0.1):
@@ -44,13 +44,17 @@ def dummy_detect_down_states(timeseries, threshold, min_down_length=0.1):
 
 
 def get_dummy_so_phase(
-    signal, threshold=10.0, min_down_length=0.1, boundary_freq=1.0
+    signal,
+    threshold=10.0,
+    min_down_length=0.1,
+    boundary_freq=1.0,
+    kind="linear",
 ):
     """
     Compute dummy phase of the slow oscillation: find down states (values less
     than threshold and duration longer than min_down_length), assign midpoints
     and linearly interpolate in between. First and last segment is computed with
-    artifical boundary frequency.
+    artificial boundary frequency.
 
     :param signal: signal to get phase from
     :type signal: `neurolib.utils.signal.Signal`
@@ -61,6 +65,12 @@ def get_dummy_so_phase(
     :param boundary_freq: first and last segment in the timeseries will be
         treated as if the slow oscillation has this frequency, in Hz
     :type boundary_freq: float
+    :param kind: kind of phase interpolation:
+        - "linear": put -pi/pi to middle of the down states and linearly
+            interpolate in between
+        - "pchi": put -pi/pi to middle of the down state, 0 at maximum up
+            state and do piecewise cubic Hermite interpolation
+    :type kind: str
     :return: wrapped SO phase of the signal
     :rtype: `neurolib.utils.signal.Signal`
     """
@@ -80,9 +90,19 @@ def get_dummy_so_phase(
         return zip(a, b)
 
     for idx_low, idx_high in pairwise(idx_low_phase):
-        f_interp = interp1d(
-            [idx_low, idx_high - 1], phases[[idx_low, idx_high - 1]]
-        )
+        if kind == "linear":
+            f_interp = si.interp1d(
+                [idx_low, idx_high - 1], phases[[idx_low, idx_high - 1]]
+            )
+        elif kind == "pchi":
+            # find up state maximum
+            up_state_idx = (
+                signal.data.values[idx_low:idx_high].argmax() + idx_low
+            )
+            f_interp = si.PchipInterpolator(
+                [idx_low, up_state_idx, idx_high - 1],
+                [phases[idx_low], 0.0, phases[idx_high - 1]],
+            )
         phases[idx_low:idx_high] = f_interp(np.arange(idx_low, idx_high))
 
     # start and end ~ make artificial oscillation with boundary_freq
