@@ -164,3 +164,39 @@ def so_phase_while_spindle(so_phase, spindle_amp, down_state_centers, **kwargs):
             SOphases.append(so_phase[start_idx + idx_max])
 
     return np.array(SOphases)
+
+
+def event_based_so_phase_while_spindle(
+    so_phase, spindle_amp, down_state_centers, sf, event_length=2.0, **kwargs
+):
+    """
+    Compute SO phase on spindle maximum within single DOWN event.
+
+    :param so_phase: phase of the SO
+    :type so_phase: np.ndarray
+    :param spindle_amp: spindle amplitude
+    :type spindle_amp: np.ndarray
+    :param down_state_centers: indices of down state centers
+    :type down_state_centers: np.ndarray
+    :param sf: sampling frequency, in Hz
+    :type sf: float
+    :param event_length: length of the DOWN event, before and after, in seconds
+    :type event_length: float
+    :return: SO phases on maximum spindle amplitude
+    :rtype: np.ndarray
+    """
+    SOphases = []
+    spindle_amp_threshold = kwargs.get("sp_amp_thresh", 5.0)
+    samples_length = int(sf * event_length)
+
+    for ds_center in down_state_centers[1:-1]:
+        start_idx = max(ds_center - samples_length, 0)
+        end_idx = min(ds_center + samples_length, len(so_phase))
+        # get amplitude for each down state
+        sp_amp_down_state = spindle_amp[start_idx:end_idx]
+        # find max sigma amp
+        idx_max = sp_amp_down_state.argmax()
+        if sp_amp_down_state[idx_max] >= spindle_amp_threshold:
+            SOphases.append(so_phase[start_idx + idx_max])
+
+    return np.array(SOphases)
