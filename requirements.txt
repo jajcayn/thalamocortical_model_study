@@ -6,6 +6,7 @@ matplotlib
 mne
 netcdf4
 git+https://github.com/neurolib-dev/neurolib.git
+# neurolib>=0.6
 numpy
 pandas
 pathos

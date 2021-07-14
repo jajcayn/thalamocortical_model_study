@@ -26,7 +26,7 @@ class ALNThalamusMiniNetwork(Network):
     """
 
     name = "ALN 1 node + Thalamus"
-    label = "1ALNThlmNet"
+    label = "ALNThlmNet"
 
     sync_variables = [
         "network_exc_exc",
