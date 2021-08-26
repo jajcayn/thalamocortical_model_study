@@ -1,4 +1,5 @@
 # Thalamocortical motif rate model
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jajcayn/thalamocortical_model_study/HEAD)
 
 *Accompanying code for the Jajcay et al. "Cross-frequency slow oscillation-spindle coupling in a biophysically realistic thalamocortical neural mass model", [journal here]*
 
@@ -26,4 +27,4 @@ and navigate to localhost:XXXX
 ### Binder
 Easiest to use, no setup required, slowest.
 
-Just click here >>
+Just click here >> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jajcayn/thalamocortical_model_study/HEAD)
