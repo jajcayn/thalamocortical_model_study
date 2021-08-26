@@ -13,8 +13,8 @@ Sleep manifests itself by the spontaneous emergence of characteristic oscillator
 ### Locally
 Fastest, complete control, requires python et al. already set up.
 ```bash
-git clone ...
-cd ...
+git clone https://github.com/jajcayn/thalamocortical_model_study.git
+cd thalamocortical_model_study
 pip install --upgrade -r requirements.txt
 jupyter lab
 ```
