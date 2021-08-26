@@ -1,0 +1,21 @@
+# just changes towards the matplotlibrc which is dark-themed
+
+# from ggplot style
+axes.prop_cycle: cycler('color', ['E24A33', '348ABD', '988ED5', '777777', 'FBC15E', '8EBA42', 'FFB5B8'])
+                   # E24A33 : red
+                   # 348ABD : blue
+                   # 988ED5 : purple
+                   # 777777 : gray
+                   # FBC15E : yellow
+                   # 8EBA42 : green
+                   # FFB5B8 : pink
+axes.facecolor : none
+axes.edgecolor : black
+grid.color : grey
+ytick.color : k
+xtick.color : k
+axes.labelcolor : k
+text.color : k
+legend.facecolor : 0.8
+legend.edgecolor : 0.8
+legend.fontsize : 16
