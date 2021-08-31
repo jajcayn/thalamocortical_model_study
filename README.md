@@ -1,6 +1,7 @@
 # Thalamocortical motif rate model
 <p align="center">
   <a href="https://mybinder.org/v2/gh/jajcayn/thalamocortical_model_study/HEAD"><img src="https://mybinder.org/badge_logo.svg"></a>
+  <a href="https://www.biorxiv.org/content/10.1101/2021.08.29.458101v1"><img src="https://img.shields.io/badge/bioRxiv-preprint-lightgrey"></a>
 </p>
 
 *Accompanying code for the Jajcay et al. "Cross-frequency slow oscillation-spindle coupling in a biophysically realistic thalamocortical neural mass model", [journal here]*
