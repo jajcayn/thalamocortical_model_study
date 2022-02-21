@@ -1,9 +1,9 @@
 nodes,connectivity,measure,value,p-value,param.
-ALN vs TCR,regular,KL-MI,0.003519344477695531,0.0,right_border_long
-ALN vs TCR,regular,MVL,6.874043580358788,0.0,right_border_long
-ALN vs TCR,regular,PLV,0.0032836021373584996,0.08399999999999996,right_border_long
-ALN vs TCR,regular,MI,0.008177456892116282,0.014000000000000012,right_border_long
-ALN vs TCR,regular,KL-MI,0.015697469091275184,0.0,right_border_short
-ALN vs TCR,regular,MVL,12.922939738048415,0.0,right_border_short
-ALN vs TCR,regular,PLV,0.0029370154520427846,0.13,right_border_short
-ALN vs TCR,regular,MI,0.004026608963845637,0.494,right_border_short
+ALN vs TCR,regular,KL-MI,0.0070923691111449685,0.0,right_border_long
+ALN vs TCR,regular,MVL,8.865294564895914,0.0,right_border_long
+ALN vs TCR,regular,PLV,0.0004898585153274386,0.953,right_border_long
+ALN vs TCR,regular,MI,0.010225496467587003,0.0010000000000000009,right_border_long
+ALN vs TCR,regular,KL-MI,0.010868505472411407,0.0,right_border_short
+ALN vs TCR,regular,MVL,11.313573178754023,0.0,right_border_short
+ALN vs TCR,regular,PLV,0.0020379072724828087,0.372,right_border_short
+ALN vs TCR,regular,MI,0.004874211234815802,0.266,right_border_short

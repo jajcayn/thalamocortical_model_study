@@ -131,3 +131,5 @@ dmypy.json
 # Docker
 Dockerfile
 .dockerignore
+
+temp*
