@@ -8,9 +8,14 @@ from itertools import tee
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 import yasa
 from neurolib.utils.signal import RatesSignal, Signal
-from scipy.signal import welch
+from scipy.signal import find_peaks, welch
+
+from utils import dummy_detect_down_states, get_amplitude
+
+SPINDLE_FREQ = {"low_freq": 12.0, "high_freq": 15.0}
 
 
 def dominant_frequency(
@@ -164,6 +169,63 @@ def so_phase_while_spindle(so_phase, spindle_amp, down_state_centers, **kwargs):
             SOphases.append(so_phase[start_idx + idx_max])
 
     return np.array(SOphases)
+
+
+def down_state_to_spindle_pow_max_peak(df, return_ds_indices=False, **kwargs):
+    """
+    Computes delay between middle of the cortical DOWN state and subsequent
+    spindle power peak.
+
+    :param df: result from the simulation, as DataFrame with index being time in
+        seconds, "ALN" column cortical excitatory firing rate, and "TCR" column
+        thalamocortical firing rate
+    :type df: pd.DataFrame
+    :param return_ds_indices: whether to return also indices of cortical DOWN
+        states followed by a spindle
+    :type return_ds_indices: bool
+    :kwargs:
+        - ds_threshold: threshold for finding DOWN states, in Hz
+        - ds_min_length: minimum length of DOWN state, in seconds
+        - spindle_std_height: required height of a spindle peak, in std of
+            spindle amplitude
+        - max_delay_ds_spindle: maximum delay of DOWN state to spindle, such
+            that it is considered an event, in seconds
+    :return: array of delays between DOWN states and spindle peaks, optionally
+        also indices of DOWN states which are followed by a spindle peak
+    :rtype: (np.ndarray, np.ndarray)
+    """
+    ds = dummy_detect_down_states(
+        RatesSignal(xr.DataArray(df["ALN"])),
+        threshold=kwargs.get("ds_threshold", 10.0),
+        min_down_length=kwargs.get("ds_min_length", 0.1),
+    )
+    ds_midpoints = [dss[len(dss) // 2] for dss in ds]
+    sigma = get_amplitude(RatesSignal(xr.DataArray(df["TCR"])), SPINDLE_FREQ)
+    sigma_pks, _ = find_peaks(
+        sigma.data.values,
+        height=kwargs.get("spindle_std_height", 1.2) * sigma.data.std().values,
+        distance=sigma.sampling_frequency * 1.0,
+    )
+    # for each sigma peak
+    pks_delay = []
+    ds_w_spindle = []
+    for sigma_pk in sigma_pks:
+        # find differences between spindle peaks and DOWN states
+        diffs = sigma_pk - ds_midpoints
+        # if negative carry on
+        if np.all(diffs < 0):
+            continue
+        diff_min = np.argmin(diffs[diffs > 0])
+        # delay in seconds
+        delay = df.index[sigma_pk] - df.index[ds_midpoints[diff_min]]
+        if np.abs(delay) > kwargs.get("max_delay_ds_spindle", 1.5):
+            continue
+        pks_delay.append(delay)
+        ds_w_spindle.append(ds_midpoints[diff_min])
+    if return_ds_indices:
+        return pks_delay, ds_w_spindle
+    else:
+        return pks_delay
 
 
 def event_based_so_phase_while_spindle(
