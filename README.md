@@ -29,7 +29,7 @@ jupyter lab
 Easy to use, only docker required. Runs `jupyter` inside a docker container.
 
 ```bash
-docker run -p XXXX:8899 ghcr.io/jajcayn/thalamocortical_model_study:v1.0
+docker run -p XXXX:8899 ghcr.io/jajcayn/thalamocortical_model_study:v2.0
 ```
 
 where XXXX is the port number on your machine. Then navigate to localhost:XXXX and should see `jupyterlab`. If you use the same port (`8899`), then you can just click on the link in the terminal and voila.
