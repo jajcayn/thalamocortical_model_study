@@ -16,7 +16,7 @@ from scipy.stats import circmean, circstd, sem
 from statistical_testing import get_p_values
 
 POLAR_XTICKS = np.pi / 180.0 * np.array([0, 90, 180, 270])
-POLAR_XTICKLABELS = ["0", r"$\pi/2$", r"$-\pi$ = $\pi$", r"$-\pi/2$"]
+POLAR_XTICKLABELS = ["0", r"$\pi/2$", r"$\pi$", r"$-\pi/2$"]
 
 
 def plot_spectrum(
